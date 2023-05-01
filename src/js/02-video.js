@@ -12,7 +12,7 @@ const onSaveCurrentTime = function () {
   });  
 };
 
-player.on('timeupdate', throttle(onSaveCurrentTime, 500));
+player.on('timeupdate', throttle(onSaveCurrentTime, 1000));
 
 const lastTime = localStorage.getItem('videoplayer-current-time')
 if (lastTime) {
