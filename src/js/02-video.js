@@ -12,9 +12,9 @@ const onSaveCurrentTime = function () {
   });  
 };
 
-const throttledOnSaveCurrentTime = throttle(onSaveCurrentTime, 500);
-
-player.on('timeupdate', throttledOnSaveCurrentTime);
+player.on('timeupdate', throttle(onSaveCurrentTime, 500));
 
 const lastTime = localStorage.getItem('videoplayer-current-time')
-player.setCurrentTime(lastTime);
+if (lastTime) {
+  player.setCurrentTime(lastTime);
+} 

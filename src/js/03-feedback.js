@@ -1,19 +1,14 @@
 import '../css/03-feedback.css';
 import throttle from 'lodash.throttle';
 
-let STORAGE_KEY = 'feedback-form-state';
+const STORAGE_KEY = 'feedback-form-state';
 
 let formData = {};
 
-const refs = {
-   form: document.querySelector('.feedback-form'),
-   email: document.querySelector('.feedback-form input'),
-   message: document.querySelector('.feedback-form textarea'),
-};
+const form = document.querySelector('.feedback-form');
 
-refs.form.addEventListener('submit', onFormSubmit);
-refs.email.addEventListener('input', throttle(onInput, 500));
-refs.message.addEventListener('input', throttle(onInput, 500));
+form.addEventListener('input', throttle(onInput, 500));
+form.addEventListener('submit', onFormSubmit);
 
 // зробити щоб зберігалось message і  email як об'єкт
 // отримуємо значення поля
@@ -21,11 +16,12 @@ refs.message.addEventListener('input', throttle(onInput, 500));
 // додати throttle
 
 function onInput(evn) {
-    // console.log(evn.target.name);
-    // console.log(evn.target.value);
-    formData[evn.target.name] = evn.target.value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-    console.log(formData);
+    try {
+        formData[evn.target.name] = evn.target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    } catch (error) {
+        console.error("Set state error: ", error.message);
+    }  
 };
 
 populateForm();
@@ -34,10 +30,19 @@ populateForm();
 // прибираемо повідомлення із сховища
 // очищуємо форму
 
-function onFormSubmit (evn) {
+function onFormSubmit(evn) {
     evn.preventDefault();
-    console.log("Вiдправляємо форму");
+    const {elements: { email, message }} = evn.currentTarget;
+
+    if (email.value.trim() === '' || message.value.trim() === '') {
+      return alert('Please fill in all the fields!');
+    }
+  
+    const object = { email: email.value, message: message.value }
+
+    console.log(object);
     evn.currentTarget.reset();
+
     formData = {};
     localStorage.removeItem(STORAGE_KEY);
 }
@@ -53,29 +58,13 @@ function populateForm() {
 
         if(parsedSettings) {
             formData = parsedSettings;
-            for(const field of refs.form) {
+            for(const field of form) {
                 if(formData[field.name]) {
                     field.value = formData[field.name];
-                }
+                } 
             }
         }
     } catch (error) {
         console.error("Get state error: ", error.message);
     }   
 }
-// function populateForm() {
-//     const savedSettings = localStorage.getItem(STORAGE_KEY);
-//     const parsedSettings = JSON.parse(savedSettings);
-
-//     if(parsedSettings) {
-//         formData = parsedSettings;
-//         refs.email.value = formData["email"] || "";
-//         refs.message.value = formData["message"] || "";
-//     }
-
-//     for(const input of refs.form) {
-//         console.log(input.name + ': ' + input.value)
-//     }
-// }
-
-
